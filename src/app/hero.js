@@ -1,14 +1,30 @@
 window.gamehame = window.gamehame || {};
 
-window.gamehame.Hero = class Hero {
-  constructor() {
+gamehame.Base = class Base {
+  update(dt) {
+    this.sprite && this.sprite.update(dt);
+  }
+
+  render() {
+    this.sprite && this.sprite.render();
+  }
+
+  collidesWith(target) {
+    return this.sprite.collidesWith(target.sprite);
+  }
+}
+
+gamehame.Hero = class Hero extends gamehame.Base {
+  constructor(posX, posY) {
+    super();
+
     this.maxSpeed = 3;
     this.connectionTime = 3;
     this.isDead = false;
 
     this.sprite = kontra.sprite({
-      x: 300,
-      y: 100,
+      x: posX,
+      y: posY,
       color: 'grey',
       width: 20,
       height: 40,
@@ -22,6 +38,7 @@ window.gamehame.Hero = class Hero {
         this.draw();
 
         const ctx = this.context;
+        ctx.save();
         if (this.isConnecting) {
           ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
           ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -31,6 +48,7 @@ window.gamehame.Hero = class Hero {
           const timer = Math.ceil(this.connectionCountdown);
           ctx.fillText(timer, this.x + 4, this.y + this.height / 2);
         }
+        ctx.restore();
       }
     });
   }
@@ -68,15 +86,16 @@ window.gamehame.Hero = class Hero {
       }
     }
 
-    this.sprite.update();
+    super.update();
   }
 
   isInCoverage(station) {
-    const dx = (this.sprite.x - station.sprite.x);
-    const dy = (this.sprite.y - station.sprite.y);
+    const sprite = this.sprite;
+    const dx = (sprite.x + (sprite.width / 2) - station.sprite.x);
+    const dy = (sprite.y + sprite.height - station.sprite.y);
     const distanceSquare = (dx * dx) + (dy * dy);
 
-    return (distanceSquare < (station.radius * station.radius));
+    return (distanceSquare <= (station.radius * station.radius));
   }
 
   connect() {
@@ -86,9 +105,5 @@ window.gamehame.Hero = class Hero {
   disconnect() {
     this.sprite.isConnecting = false;
     this.sprite.connectionCountdown = this.connectionTime;
-  }
-
-  render() {
-    this.sprite.render();
   }
 }
