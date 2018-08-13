@@ -2,7 +2,8 @@
   "name": "js13kgames-2018",
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server --progress",
+    "start:webpack": "webpack-dev-server --progress",
+    "start": "open src/index.html",
     "build": "webpack -p --progress",
     "postbuild": "node postbuild.js"
   },
